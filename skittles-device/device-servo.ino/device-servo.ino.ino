@@ -7,9 +7,13 @@
 
 #include <SPI.h>
 #include "RF24.h"
+#include <Servo.h>
+
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
 RF24 radio(8,7);
+Servo myservo;
+
 
 const byte address[6] = "00001"; 
 
@@ -17,6 +21,8 @@ const byte address[6] = "00001";
 void setup() {
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
+  myservo.attach(9);
+  
   Serial.begin(57600);
   radio.begin();
 
@@ -37,14 +43,21 @@ void loop() {
         // While there is data ready
           radio.read( &servo_pos, sizeof(int) );
       }
-      if (servo_pos % 2 == 0) {
+      if (servo_pos >= 155 ) {
         digitalWrite(5, HIGH);
         digitalWrite(4, LOW);
       }
-    else {
-        digitalWrite(4, HIGH);
+    else if(servo_pos <= 5) {
+        digitalWrite(4, LOW);
         digitalWrite(5, LOW);
      }
+     else {
+      digitalWrite(4, HIGH);
+      digitalWrite(5, LOW);
+     }
+
+     myservo.write(servo_pos);
+     delay(20);
     }
     
    } 
