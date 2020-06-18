@@ -11,7 +11,7 @@
 
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
-RF24 radio(8,7);
+RF24 radio(7,8);
 Servo myservo;
 
 
@@ -35,29 +35,15 @@ void setup() {
 
 
 void loop() {
-    static  int servo_pos = 0;
-
+   static int joy_sticks[4];
+      
     radio.startListening();
     if( radio.available()){
       while (radio.available()) {
-        // While there is data ready
-          radio.read( &servo_pos, sizeof(int) );
+          radio.read( &joy_sticks, sizeof(joy_sticks));
       }
-      if (servo_pos >= 155 ) {
-        digitalWrite(5, HIGH);
-        digitalWrite(4, LOW);
-      }
-    else if(servo_pos <= 5) {
-        digitalWrite(4, LOW);
-        digitalWrite(5, LOW);
-     }
-     else {
-      digitalWrite(4, HIGH);
-      digitalWrite(5, LOW);
-     }
-
-     myservo.write(servo_pos);
-     delay(20);
     }
+
     
-   } 
+    
+} 

@@ -2,6 +2,9 @@
  * This sample sketch allows you to read and display through the serial
  * line the values of the joystick axes without calibration.
 */
+#include <SPI.h>
+#include "RF24.h"
+
 
 // INCLUDE LIBRARY
 #include <AlignedJoy.h>
@@ -15,20 +18,31 @@
 #define Ain1 6
 #define Ain2 7
 #define enB 10
-#define Bin3 11
-#define Bin4 12
+#define Bin3 A2
+#define Bin4 A3
 
 //rear
 #define enC 3
-#define Cin1 13
+#define Cin1 A4
 #define Cin2 2
 #define enD 5
 #define Din3 8
 #define Din4 4 
 
+
+const byte address[6] = "00001"; 
+
 AlignedJoy joystick_1(PIN_JOY1_X, PIN_JOY1_Y);
+RF24 radio(A0,A1);
 
 void setup() {
+  radio.begin();
+  radio.setPALevel(RF24_PA_LOW);
+  radio.openReadingPipe(1, address);
+  radio.startListening();
+
+  
+  
   pinMode(enA, OUTPUT);
   pinMode(enB, OUTPUT);
   pinMode(enC, OUTPUT);
@@ -49,16 +63,23 @@ void setup() {
 }
 
 void loop() {
- int xPos = joystick_1.read(X);
- int yPos = joystick_1.read(Y);
 
- int pwmY = map(yPos, 0, 1023, 0, 255);
- int pwmX = map(xPos, 0, 1023, 0 ,255);
- //Serial.println();
-
+  int joy_sticks[] = { 125, 125, 125, 125 };
+      
+  radio.startListening();
+  if( radio.available()){
+    while (radio.available()) {
+        radio.read( &joy_sticks, sizeof(joy_sticks));
+   }
+   }
+   int pwmY = joy_sticks[0];
+   int pwmX = joy_sticks[1];
+   
     
 if (130 <= pwmX <= 145) {
   Serial.print(pwmY);
+  Serial.println();
+  
  if (pwmY >= 139){
   digitalWrite(Ain1, LOW );
   digitalWrite(Ain2, HIGH );
@@ -105,8 +126,6 @@ if (130 <= pwmX <= 145) {
    } 
    
    
-   
-   
    else {
      
     digitalWrite(Ain1, LOW );
@@ -123,7 +142,6 @@ if (130 <= pwmX <= 145) {
     
   }
  }
-
 
   analogWrite(enA, pwmY);
   analogWrite(enB , pwmY);
