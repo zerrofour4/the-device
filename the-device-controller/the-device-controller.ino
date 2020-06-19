@@ -6,33 +6,26 @@
 #include "RF24.h"
 
 
-// INCLUDE LIBRARY
-#include <AlignedJoy.h>
+//right
+#define BRen 6
+#define BRin1 5
+#define BRin2 4
+#define FRen 9
+#define FRin1 8
+#define FRin2 7 
 
-
-#define PIN_JOY1_X   0  
-#define PIN_JOY1_Y   1  
-
-//front
-#define enA 9
-#define Ain1 6
-#define Ain2 7
-#define enB 10
-#define Bin3 A2
-#define Bin4 A3
-
-//rear
-#define enC 3
-#define Cin1 A4
-#define Cin2 2
-#define enD 5
-#define Din3 8
-#define Din4 4 
+//left
+#define FLen 3
+#define FLin1 A3
+#define FLin2 A2
+ 
+#define BLen 10
+#define BLin1 A4
+#define BLin2 A5
 
 
 const byte address[6] = "00001"; 
 
-AlignedJoy joystick_1(PIN_JOY1_X, PIN_JOY1_Y);
 RF24 radio(A0,A1);
 
 void setup() {
@@ -43,30 +36,34 @@ void setup() {
 
   
   
-  pinMode(enA, OUTPUT);
-  pinMode(enB, OUTPUT);
-  pinMode(enC, OUTPUT);
-  pinMode(enD, OUTPUT);
+  pinMode(BRen, OUTPUT);
+  pinMode(BLen, OUTPUT);
+  pinMode(FRen, OUTPUT);
+  pinMode(FLen, OUTPUT);
   
-  pinMode(Ain1, OUTPUT);
-  pinMode(Ain2, OUTPUT);
-  pinMode(Bin3, OUTPUT);
-  pinMode(Bin4, OUTPUT);
-  pinMode(Cin1, OUTPUT);
-  pinMode(Cin2, OUTPUT);
-  pinMode(Din3, OUTPUT);
-  pinMode(Din4, OUTPUT);
+  pinMode(BRin1, OUTPUT);
+  pinMode(BRin2, OUTPUT);
+  pinMode(FRin1, OUTPUT);
+  pinMode(FRin2, OUTPUT);
+  
+  pinMode(FLin1, OUTPUT);
+  pinMode(FLin2, OUTPUT);
+  pinMode(BLin1, OUTPUT);
+  pinMode(BLin2, OUTPUT);
  
  
  Serial.begin(9600);
  while(!Serial){} 
+
+
+ 
 }
 
 void loop() {
 
-  int joy_sticks[] = { 125, 125, 125, 125 };
+    
+  int joy_sticks[] = { 135, 135, 135, 135  };
       
-  radio.startListening();
   if( radio.available()){
     while (radio.available()) {
         radio.read( &joy_sticks, sizeof(joy_sticks));
@@ -76,77 +73,99 @@ void loop() {
    int pwmX = joy_sticks[1];
    
     
-if (130 <= pwmX <= 145) {
-  Serial.print(pwmY);
+if (pwmY > 135 || pwmY < 125) {
   Serial.println();
   
  if (pwmY >= 139){
-  digitalWrite(Ain1, LOW );
-  digitalWrite(Ain2, HIGH );
-  digitalWrite(Bin3, LOW );
-  digitalWrite(Bin4, HIGH );
+  digitalWrite(FLin1, LOW );
+  digitalWrite(FLin2, HIGH );
+  
+  digitalWrite(FRin1, LOW );
+  digitalWrite(FRin2, HIGH );
 
-  digitalWrite(Cin1, LOW );
-  digitalWrite(Cin2, HIGH );
-  digitalWrite(Din3, LOW );
-  digitalWrite(Din4, HIGH );
+  digitalWrite(BLin1, LOW );
+  digitalWrite(BLin2, HIGH );
+  
+  digitalWrite(BRin1, LOW );
+  digitalWrite(BRin2, HIGH );
 
 
  }
  else if ( pwmY <= 125) { 
-  digitalWrite(Ain1, HIGH );
-  digitalWrite(Ain2, LOW );
-  digitalWrite(Bin3, HIGH );
-  digitalWrite(Bin4, LOW );
+  digitalWrite(FLin1, HIGH );
+  digitalWrite(FLin2, LOW );
+  
+  digitalWrite(FRin1, HIGH );
+  digitalWrite(FRin2, LOW );
 
-  digitalWrite(Cin1, HIGH );
-  digitalWrite(Cin2, LOW );
-  digitalWrite(Din3, HIGH );
-  digitalWrite(Din4, LOW );
+  digitalWrite(BLin1, HIGH );
+  digitalWrite(BLin2, LOW );
+  
+  digitalWrite(BRin1, HIGH );
+  digitalWrite(BRin2 ,LOW );
   
   
   pwmY = 255 - pwmY ; 
   
  }
-   else if (130 < pwmX > 145) {
-
-  if (pwmX > 145){
-    digitalWrite(Ain1, HIGH );
-    digitalWrite(Ain2, LOW );
-    digitalWrite(Cin1, HIGH );
-    digitalWrite(Cin2, LOW );
-
-    digitalWrite(Bin3, HIGH );
-    digitalWrite(Bin4, LOW );
-    digitalWrite(Din3, HIGH );
-    digitalWrite(Din4, LOW );
+}
 
 
+else if (pwmX > 135 || pwmX < 124) {
+   Serial.print(pwmX) ;
+   Serial.println();
+  //right turn
+  if (pwmX > 135){
+  digitalWrite(FLin1, LOW );
+  digitalWrite(FLin2, HIGH );
+  
+  digitalWrite(FRin1, HIGH );
+  digitalWrite(FRin2, LOW );
+
+  digitalWrite(BLin1, LOW );
+  digitalWrite(BLin2, HIGH );
+  
+  digitalWrite(BRin1, HIGH );
+  digitalWrite(BRin2, LOW );
   }
-   } 
-   
-   
-   else {
-     
-    digitalWrite(Ain1, LOW );
-    digitalWrite(Ain2, LOW );
-    digitalWrite(Cin1, LOW );
-    digitalWrite(Cin2, LOW );
+  else if (pwmX <=120 ) {
+    digitalWrite(FLin1, HIGH );
+    digitalWrite(FLin2, LOW );
+  
+    digitalWrite(FRin1, LOW );
+    digitalWrite(FRin2, HIGH );
 
-    digitalWrite(Bin3, LOW );
-    digitalWrite(Bin4, LOW );
-    digitalWrite(Din3, LOW );
-    digitalWrite(Din4, LOW );
-   
+    digitalWrite(BLin1, HIGH );
+    digitalWrite(BLin2, LOW );
+  
+    digitalWrite(BRin1, LOW );
+    digitalWrite(BRin2, HIGH );
+  }    
+      
+  } else {
+      
+  digitalWrite(FLin1, LOW );
+  digitalWrite(FLin2, LOW );
+  
+  digitalWrite(FRin1, LOW );
+  digitalWrite(FRin2, LOW );
 
+  digitalWrite(BLin1, LOW );
+  digitalWrite(BLin2, LOW );
+  
+  digitalWrite(BRin1, LOW );
+  digitalWrite(BRin2, LOW );
     
-  }
- }
+   }
+  
 
-  analogWrite(enA, pwmY);
-  analogWrite(enB , pwmY);
-  analogWrite(enC, pwmY);
-  analogWrite(enD , pwmY);
+   
+ 
+
+  analogWrite(BRen, pwmY);
+  analogWrite(BLen , pwmY);
+  analogWrite(FLen, pwmY);
+  analogWrite(FRen , pwmY);
 
 }
  
